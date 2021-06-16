@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui version="4.0">
+	<class>SimplePGClass</class>
+	<widget class="QMainWindow" name="SimplePGClass">
+		<property name="geometry">
+			<rect>
+				<x>0</x>
+				<y>0</y>
+				<width>600</width>
+				<height>400</height>
+			</rect>
+		</property>
+		<property name="sizePolicy">
+			<sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+				<horstretch>0</horstretch>
+				<verstretch>0</verstretch>
+			</sizepolicy>
+		</property>
+		<property name="minimumSize">
+			<size>
+				<width>600</width>
+				<height>400</height>
+			</size>
+		</property>
+		<property name="maximumSize">
+			<size>
+				<width>600</width>
+				<height>400</height>
+			</size>
+		</property>
+		<property name="windowTitle">
+			<string>SimplePG</string>
+		</property>
+		<property name="windowOpacity">
+			<double>1.000000000000000</double>
+		</property>
+		<property name="styleSheet">
+			<string notr="true">background-color:black;</string>
+		</property>
+		<widget class="QWidget" name="centralWidget">
+			<property name="styleSheet">
+				<string notr="true" />
+			</property>
+			<widget class="QGroupBox" name="groupBox_3">
+				<property name="geometry">
+					<rect>
+						<x>0</x>
+						<y>0</y>
+						<width>600</width>
+						<height>400</height>
+					</rect>
+				</property>
+				<property name="styleSheet">
+					<string notr="true">
+						color:rgb(85, 0, 0);
+						border-width: 0.5px;
+						border-color:rgb(115, 0, 0);
+						border-style:inset;
+					</string>
+				</property>
+				<property name="title">
+					<string />
+				</property>
+				<widget class="QGroupBox" name="groupBox">
+					<property name="geometry">
+						<rect>
+							<x>39</x>
+							<y>39</y>
+							<width>522</width>
+							<height>311</height>
+						</rect>
+					</property>
+					<property name="styleSheet">
+						<string notr="true">
+							color:rgb(170, 0, 0);
+
+							border-color:rgb(170, 0, 0);
+							border-style:inset;
+
+							border-width: 0.5px;
+
+							border-style:inset;
+						</string>
+					</property>
+					<property name="title">
+						<string />
+					</property>
+					<widget class="QPushButton" name="pb1">
+						<property name="geometry">
+							<rect>
+								<x>8</x>
+								<y>8</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb2">
+						<property name="geometry">
+							<rect>
+								<x>137</x>
+								<y>8</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb3">
+						<property name="geometry">
+							<rect>
+								<x>266</x>
+								<y>8</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb4">
+						<property name="geometry">
+							<rect>
+								<x>394</x>
+								<y>8</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb5">
+						<property name="geometry">
+							<rect>
+								<x>8</x>
+								<y>110</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb6">
+						<property name="geometry">
+							<rect>
+								<x>137</x>
+								<y>110</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb7">
+						<property name="geometry">
+							<rect>
+								<x>266</x>
+								<y>110</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb8">
+						<property name="geometry">
+							<rect>
+								<x>394</x>
+								<y>110</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb9">
+						<property name="geometry">
+							<rect>
+								<x>8</x>
+								<y>210</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb10">
+						<property name="geometry">
+							<rect>
+								<x>137</x>
+								<y>210</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb11">
+						<property name="geometry">
+							<rect>
+								<x>266</x>
+								<y>210</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+					<widget class="QPushButton" name="pb12">
+						<property name="geometry">
+							<rect>
+								<x>394</x>
+								<y>210</y>
+								<width>120</width>
+								<height>93</height>
+							</rect>
+						</property>
+						<property name="sizePolicy">
+							<sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+								<horstretch>0</horstretch>
+								<verstretch>0</verstretch>
+							</sizepolicy>
+						</property>
+						<property name="minimumSize">
+							<size>
+								<width>44</width>
+								<height>90</height>
+							</size>
+						</property>
+						<property name="sizeIncrement">
+							<size>
+								<width>0</width>
+								<height>0</height>
+							</size>
+						</property>
+						<property name="font">
+							<font>
+								<pointsize>40</pointsize>
+								<weight>75</weight>
+								<bold>true</bold>
+							</font>
+						</property>
+						<property name="text">
+							<string>*</string>
+						</property>
+					</widget>
+				</widget>
+				<widget class="QGroupBox" name="groupBox_2">
+					<property name="geometry">
+						<rect>
+							<x>568</x>
+							<y>7</y>
+							<width>25</width>
+							<height>25</height>
+						</rect>
+					</property>
+					<property name="styleSheet">
+						<string notr="true">
+							color:rgb(170, 0, 0);
+
+							border-color:rgb(170, 0, 0);
+							border-style:inset;
+
+							border-width: 0.5px;
+
+							border-style:inset;
+						</string>
+					</property>
+					<property name="title">
+						<string />
+					</property>
+				</widget>
+				<widget class="QPushButton" name="closeButton">
+					<property name="geometry">
+						<rect>
+							<x>570</x>
+							<y>8</y>
+							<width>20</width>
+							<height>20</height>
+						</rect>
+					</property>
+					<property name="sizePolicy">
+						<sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+							<horstretch>0</horstretch>
+							<verstretch>0</verstretch>
+						</sizepolicy>
+					</property>
+					<property name="font">
+						<font>
+							<family>OCR A Extended</family>
+							<pointsize>16</pointsize>
+							<weight>75</weight>
+							<bold>true</bold>
+						</font>
+					</property>
+					<property name="styleSheet">
+						<string notr="true">
+							QPushButton {
+							color: rgb(190, 0, 0);
+							border-color:back;
+							}
+
+							QPushButton:pressed {
+							color:rgb(115, 0, 0);
+							border-color:back;
+							}
+						</string>
+					</property>
+					<property name="text">
+						<string>x</string>
+					</property>
+				</widget>
+			</widget>
+		</widget>
+	</widget>
+	<layoutdefault spacing="6" margin="11" />
+	<resources>
+		<include location="SimplePG.qrc" />
+	</resources>
+	<connections />
+</ui>
