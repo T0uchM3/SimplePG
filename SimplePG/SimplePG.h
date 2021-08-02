@@ -7,7 +7,7 @@
 #include <windows.h>
 #include "QDebug"
 
-class NewEventFilter;
+//class NewEventFilter;
 class SimplePG : public QMainWindow
 {
 	Q_OBJECT
@@ -19,8 +19,10 @@ public:
 	void mouseMoveEvent(QMouseEvent* event);
 	bool eventFilter(QObject* watched, QEvent* event);
 	QPoint current;
+	//difference between pointer's location and drag's start location.
+	QPoint correctionVal;
 	bool pressed;
-	NewEventFilter* NEF;
+	//NewEventFilter* NEF;
 private slots:
 	void grid_btn_clicked();
 	//void on_pushButton_clicked(QMouseEvent);
@@ -31,6 +33,5 @@ private:
 	Ui::SimplePGClass* ui;
 	int x = 0;
 	bool nativeEvent(const QByteArray& eventType, void* message, long* result);
-	//WNDCLASSEXW wcex;
 };
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

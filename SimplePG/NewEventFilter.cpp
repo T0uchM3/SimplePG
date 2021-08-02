@@ -1,7 +1,6 @@
 #include "NewEventFilter.h"
 #include "QString"
-//#include <stdexcept>
-//#include "SimplePG.h"
+
 NewEventFilter::NewEventFilter()
 {
 }

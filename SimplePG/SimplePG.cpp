@@ -1,21 +1,20 @@
 #include "SimplePG.h"
 #include "QDebug"
-//#include <WinUser.h>
-//#include <windef.h>
-//#include <WinUser.h>
 #include <windows.h>
-//#include <winuser.h>
-//#include <windef.h>
+#include <dwmapi.h>
+#include <wingdi.h>
 
 #define testSpace 0x0010
 long miid = 1010;
+static QColor m_clear_color = QColor(Qt::white);
 
 SimplePG::SimplePG(QWidget* parent)
 	: QMainWindow(parent), ui(new Ui::SimplePGClass)
 {
 	ui->setupUi(this);
 	pressed = false;
-	ui->centralWidget->installEventFilter(this);
+	//ui->centralWidget->installEventFilter(this);
+	ui->topBox->installEventFilter(this);
 
 	QObjectList list = ui->groupBox->children();
 	qDebug() << "Number of children " << list.count();
@@ -58,22 +57,8 @@ SimplePG::SimplePG(QWidget* parent)
 
 	::InsertMenuItem(hMenu, 6, true, &mii2);
 
+	correctionVal = QPoint(-7, 0);
 	//}
-
-	//WNDCLASSEXW wcex;
-	//wcex.cbSize = sizeof(WNDCLASSEX);
-	//wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	//wcex.lpfnWndProc = WndProc;
-	//wcex.cbClsExtra = 0;
-	//wcex.cbWndExtra = 0;
-	//wcex.hInstance = reinterpret_cast<HINSTANCE>(GetModuleHandle(0));
-	//wcex.hIcon = NULL /* ? (HICON)hIcon : LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1))*/;
-	//wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	//wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	//wcex.lpszMenuName = NULL;
-	//wcex.lpszClassName = L"OPENGLWINDOW";
-	//wcex.hIconSm = NULL;
-	//RegisterClassExW(&wcex);
 }
 
 void SimplePG::grid_btn_clicked()
@@ -90,14 +75,15 @@ void SimplePG::mouseMoveEvent(QMouseEvent* event)
 {
 	if (pressed)
 	{
-		this->move(mapToParent(event->pos() - current));
+		this->move(mapToParent(event->pos() - current) - correctionVal);
 		this->setWindowOpacity(0.8);
 	}
 }
 
 bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 {
-	if (watched == ui->centralWidget && event->type() == QEvent::MouseButtonPress)
+	QMouseEvent* qme = static_cast<QMouseEvent*>(event);
+	if (watched == ui->topBox && event->type() == QEvent::MouseButtonPress && qme->button() == Qt::LeftButton)
 	{
 		QMouseEvent* mouseEvent = (QMouseEvent*)event;
 		if (pressed == false)
@@ -107,21 +93,46 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 		pressed = true;
 		return true;
 	}
-	if (watched == ui->centralWidget && event->type() == QEvent::MouseButtonRelease)
+	if (watched == ui->topBox && event->type() == QEvent::MouseButtonRelease && qme->button() == Qt::LeftButton)
 	{
 		pressed = false;
 		this->setWindowOpacity(1);
 		return true;
 	}
+	if (watched == ui->topBox && event->type() == QEvent::MouseButtonRelease && qme->button() == Qt::RightButton)
+	{
+		HMENU hMenu = ::GetSystemMenu((HWND)this->winId(), FALSE);
+
+		if (!hMenu)
+			return false;
+
+		MENUITEMINFOW mii;
+		mii.cbSize = sizeof(MENUITEMINFOW);
+		mii.fMask = MIIM_STATE;
+		mii.fType = 0;
+
+		mii.fState = MF_ENABLED;
+		SetMenuItemInfoW(hMenu, SC_RESTORE, FALSE, &mii);
+		SetMenuItemInfoW(hMenu, SC_SIZE, FALSE, &mii);
+		SetMenuItemInfoW(hMenu, SC_MOVE, FALSE, &mii);
+		SetMenuItemInfoW(hMenu, SC_MAXIMIZE, FALSE, &mii);
+		SetMenuItemInfoW(hMenu, SC_MINIMIZE, FALSE, &mii);
+
+		mii.fState = MF_GRAYED;
+
+		WINDOWPLACEMENT wp;
+		GetWindowPlacement((HWND)this->winId(), &wp);
+		int x = qme->globalX();
+		int y = qme->globalY();
+		LPARAM cmd = TrackPopupMenu(hMenu, (TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD), x, y, 0, (HWND)this->winId(), nullptr);
+
+		if (cmd)
+			PostMessageW((HWND)this->winId(), WM_SYSCOMMAND, WPARAM(cmd), 0);
+	}
+
 	else
 		return false;
 }
-
-//LRESULT CALLBACK SimplePG::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-//{
-//	qDebug() << "WNDPROCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
-//	return 0;
-//}
 
 SimplePG::~SimplePG()
 {
@@ -157,9 +168,30 @@ bool SimplePG::nativeEvent(const QByteArray& eventType, void* message, long* res
 	return false;
 }
 
-//
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	qDebug() << "WNDPROCC";
+	//qDebug() << "WNDPROCC";
+	PAINTSTRUCT		ps;
+	if (message == WM_NCPAINT)
+	{
+		HDC hdc = GetWindowDC(hWnd);
+		qDebug() << "WM_PPAAAAINT";
+	}
+	LRESULT lRet = 0;
+	if (message == WM_ACTIVATE)
+	{
+		qDebug("WM_ACTIVEATE");
+		LPWSTR s = L"hello world!";
+
+		SetWindowTextW(hWnd, s);
+	}
+	if (message == WM_CREATE)
+	{
+		qDebug("WM_CREATE");
+	}
+	if (message == WM_CONTEXTMENU)
+	{
+		qDebug("WM_CONTEXTMENU");
+	}
 	return 0;
 }

@@ -1,5 +1,4 @@
 #pragma once
-//#include <qabstractnativeeventfilter.h>
 #include "QAbstractNativeEventFilter"
 #include "SimplePG.h"
 #include <windows.h>
