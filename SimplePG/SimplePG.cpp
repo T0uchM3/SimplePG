@@ -76,10 +76,29 @@ void SimplePG::mouseMoveEvent(QMouseEvent* event)
 	if (pressed)
 	{
 		this->move(mapToParent(event->pos() - current) - correctionVal);
-		this->setWindowOpacity(0.8);
+		if (trigOnce)
+		{
+			//keep calling transTrig
+			timer = new QTimer(this);
+			connect(timer, SIGNAL(timeout()), this, SLOT(transTrig()));
+			//with 50ms interval
+			timer->start(50);
+			//once each hold
+			trigOnce = false;
+		}
 	}
 }
-
+void SimplePG::transTrig()
+{
+	//with no interruption this runs 5 times
+	//with each run we reduce the window's opacity
+	//to create kinda of smooth transition
+	opCounter++;
+	if (opCounter == 5)
+		timer->stop();
+	opacityVal = opacityVal - 0.05;
+	this->setWindowOpacity(opacityVal);
+}
 bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 {
 	QMouseEvent* qme = static_cast<QMouseEvent*>(event);
@@ -96,38 +115,49 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 	if (watched == ui->topBox && event->type() == QEvent::MouseButtonRelease && qme->button() == Qt::LeftButton)
 	{
 		pressed = false;
+		//reset and halt transition when release
 		this->setWindowOpacity(1);
+		timer->stop();
+		opacityVal = 1.0;
+		opCounter = 0;
+		trigOnce = true;
 		return true;
 	}
 	if (watched == ui->topBox && event->type() == QEvent::MouseButtonRelease && qme->button() == Qt::RightButton)
 	{
-		HMENU hMenu = ::GetSystemMenu((HWND)this->winId(), FALSE);
+		//trigger menu only if the release event happened inside topBox
+		//get the rect of topbox and check if the mouse pos is inside it
+		if (ui->topBox->rect().contains(qme->localPos().toPoint()))
+		{
+			HMENU hMenu = ::GetSystemMenu((HWND)this->winId(), FALSE);
 
-		if (!hMenu)
-			return false;
+			if (!hMenu)
+				return false;
 
-		MENUITEMINFOW mii;
-		mii.cbSize = sizeof(MENUITEMINFOW);
-		mii.fMask = MIIM_STATE;
-		mii.fType = 0;
+			MENUITEMINFOW mii;
+			mii.cbSize = sizeof(MENUITEMINFOW);
+			mii.fMask = MIIM_STATE;
+			mii.fType = 0;
 
-		mii.fState = MF_ENABLED;
-		SetMenuItemInfoW(hMenu, SC_RESTORE, FALSE, &mii);
-		SetMenuItemInfoW(hMenu, SC_SIZE, FALSE, &mii);
-		SetMenuItemInfoW(hMenu, SC_MOVE, FALSE, &mii);
-		SetMenuItemInfoW(hMenu, SC_MAXIMIZE, FALSE, &mii);
-		SetMenuItemInfoW(hMenu, SC_MINIMIZE, FALSE, &mii);
+			mii.fState = MF_ENABLED;
+			SetMenuItemInfoW(hMenu, SC_RESTORE, FALSE, &mii);
+			SetMenuItemInfoW(hMenu, SC_SIZE, FALSE, &mii);
+			SetMenuItemInfoW(hMenu, SC_MOVE, FALSE, &mii);
+			SetMenuItemInfoW(hMenu, SC_MAXIMIZE, FALSE, &mii);
+			SetMenuItemInfoW(hMenu, SC_MINIMIZE, FALSE, &mii);
 
-		mii.fState = MF_GRAYED;
+			mii.fState = MF_GRAYED;
 
-		WINDOWPLACEMENT wp;
-		GetWindowPlacement((HWND)this->winId(), &wp);
-		int x = qme->globalX();
-		int y = qme->globalY();
-		LPARAM cmd = TrackPopupMenu(hMenu, (TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD), x, y, 0, (HWND)this->winId(), nullptr);
+			WINDOWPLACEMENT wp;
+			GetWindowPlacement((HWND)this->winId(), &wp);
+			//placements relative to the window not the whole screen
+			int x = qme->globalX();
+			int y = qme->globalY();
+			LPARAM cmd = TrackPopupMenu(hMenu, (TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD), x, y, 0, (HWND)this->winId(), nullptr);
 
-		if (cmd)
-			PostMessageW((HWND)this->winId(), WM_SYSCOMMAND, WPARAM(cmd), 0);
+			if (cmd)
+				PostMessageW((HWND)this->winId(), WM_SYSCOMMAND, WPARAM(cmd), 0);
+		}
 	}
 
 	else

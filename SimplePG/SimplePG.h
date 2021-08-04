@@ -6,8 +6,10 @@
 #include "NewEventFilter.h"
 #include <windows.h>
 #include "QDebug"
+#include <qobject.h>
+#include <QtGui>
+#include <QTimer>
 
-//class NewEventFilter;
 class SimplePG : public QMainWindow
 {
 	Q_OBJECT
@@ -22,13 +24,15 @@ public:
 	//difference between pointer's location and drag's start location.
 	QPoint correctionVal;
 	bool pressed;
-	//NewEventFilter* NEF;
+	QTimer* timer;
+	bool trigOnce = true;
+	qreal opacityVal = 1.0;
+	int opCounter = 0;
 private slots:
 	void grid_btn_clicked();
-	//void on_pushButton_clicked(QMouseEvent);
 	void on_closeButton_clicked();
 	void on_mainBtn_clicked();
-
+	void transTrig();
 private:
 	Ui::SimplePGClass* ui;
 	int x = 0;
