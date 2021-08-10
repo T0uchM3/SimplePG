@@ -13,15 +13,14 @@ SimplePG::SimplePG(QWidget* parent)
 {
 	ui->setupUi(this);
 	pressed = false;
-	//ui->centralWidget->installEventFilter(this);
 	ui->topBox->installEventFilter(this);
 
 	QObjectList list = ui->groupBox->children();
 	qDebug() << "Number of children " << list.count();
+	buttonList = ui->groupBox->findChildren<QPushButton*>();
 	for (QObject* v : list)
 	{
 		QPushButton* qpb = qobject_cast<QPushButton*>(v);
-
 		connect(qpb, SIGNAL(clicked()), this, SLOT(grid_btn_clicked()));
 	}
 	LPWSTR test = L"TEST";
@@ -61,11 +60,6 @@ SimplePG::SimplePG(QWidget* parent)
 	//}
 }
 
-void SimplePG::grid_btn_clicked()
-{
-	QPushButton* btn = qobject_cast<QPushButton*>(sender());
-	qDebug() << "pressed " << btn->objectName();
-}
 void SimplePG::mousePressEvent(QMouseEvent* event)
 {
 	current = event->pos();
@@ -79,10 +73,10 @@ void SimplePG::mouseMoveEvent(QMouseEvent* event)
 		if (trigOnce)
 		{
 			//keep calling transTrig
-			timer = new QTimer(this);
-			connect(timer, SIGNAL(timeout()), this, SLOT(transTrig()));
+			opTimer = new QTimer(this);
+			connect(opTimer, SIGNAL(timeout()), this, SLOT(transTrig()));
 			//with 50ms interval
-			timer->start(50);
+			opTimer->start(50);
 			//once each hold
 			trigOnce = false;
 		}
@@ -95,7 +89,7 @@ void SimplePG::transTrig()
 	//to create kinda of smooth transition
 	opCounter++;
 	if (opCounter == 5)
-		timer->stop();
+		opTimer->stop();
 	opacityVal = opacityVal - 0.05;
 	this->setWindowOpacity(opacityVal);
 }
@@ -117,7 +111,7 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 		pressed = false;
 		//reset and halt transition when release
 		this->setWindowOpacity(1);
-		timer->stop();
+		opTimer->stop();
 		opacityVal = 1.0;
 		opCounter = 0;
 		trigOnce = true;
@@ -137,6 +131,7 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 			MENUITEMINFOW mii;
 			mii.cbSize = sizeof(MENUITEMINFOW);
 			mii.fMask = MIIM_STATE;
+			//mii.hbrBack = hBrush;
 			mii.fType = 0;
 
 			mii.fState = MF_ENABLED;
@@ -147,9 +142,19 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 			SetMenuItemInfoW(hMenu, SC_MINIMIZE, FALSE, &mii);
 
 			mii.fState = MF_GRAYED;
+			//*********attempt to make a dark context menu*****
+			//MENUINFO mi = { 0 };
+			//mi.cbSize = sizeof(mi);
+			//mi.fMask = MIM_BACKGROUND | MIM_APPLYTOSUBMENUS;
+			//mi.hbrBack = CreateSolidBrush(RGB(33, 33, 33));
 
-			WINDOWPLACEMENT wp;
-			GetWindowPlacement((HWND)this->winId(), &wp);
+			//HMENU hMenu = ::GetMenu(hWnd);
+			//SetMenuInfo(hMenu, &mi);
+			//*******************************
+			ICONINFO ii = { 0 };
+			//SetIcon
+			//	WINDOWPLACEMENT wp;
+			//GetWindowPlacement((HWND)this->winId(), &wp);
 			//placements relative to the window not the whole screen
 			int x = qme->globalX();
 			int y = qme->globalY();
@@ -160,6 +165,10 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 		}
 	}
 
+	//close window
+	QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+	if (keyEvent->key() == Qt::Key_Escape)
+		SimplePG::close();
 	else
 		return false;
 }
@@ -178,6 +187,64 @@ void SimplePG::on_closeButton_clicked()
 void SimplePG::on_mainBtn_clicked()
 {
 	qDebug() << "main button clicked";
+	peekTimer = new QTimer(this);
+	connect(peekTimer, SIGNAL(timeout()), this, SLOT(startPeek()));
+	peekTimer->setSingleShot(true);
+	startPeek();
+}
+//first stage after clicking "start"
+void SimplePG::startPeek()
+{
+	if (peek)
+	{
+		secondRun = false;
+		randList.clear();
+		charList.clear();
+		for (QPushButton* qpb : buttonList)
+		{
+		again:
+			if (randList.size() == randStuff.size())
+			{
+				if (secondRun)
+				{
+					break;
+				}
+				//starting second half
+				randList.clear();
+				secondRun = true;
+				goto again;
+			}
+			rand = QRandomGenerator::global()->bounded(0, 6);
+
+			if (!randList.contains(rand))
+			{
+				randList.append(rand);
+				qpb->setText(randStuff[rand]);
+				charList.append(randStuff[rand]);
+			}
+			else
+			{
+				goto again;
+			}
+		}
+		peek = false;
+		peekTimer->start(2000);
+	}
+	else
+	{
+		for (QPushButton* qpb : buttonList)
+		{
+			qpb->setText("*");
+		}
+		peek = true;
+	}
+}
+
+void SimplePG::grid_btn_clicked()
+{
+	QPushButton* btn = qobject_cast<QPushButton*>(sender());
+	qDebug() << "pressed " << btn->objectName();
+	btn->setText(charList[buttonList.indexOf(btn)]);
 }
 
 bool SimplePG::nativeEvent(const QByteArray& eventType, void* message, long* result)
