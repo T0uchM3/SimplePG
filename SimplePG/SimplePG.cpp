@@ -197,6 +197,7 @@ void SimplePG::startPeek()
 {
 	if (peek)
 	{
+		enableClick = true;
 		secondRun = false;
 		randList.clear();
 		charList.clear();
@@ -215,7 +216,11 @@ void SimplePG::startPeek()
 				goto again;
 			}
 			rand = QRandomGenerator::global()->bounded(0, 6);
-
+			//check if rand exists in randList, if not
+			//rand get assigned to a button
+			//this will guarantee the buttonList buttons order
+			//will match randList character's order
+			//which will come handy later
 			if (!randList.contains(rand))
 			{
 				randList.append(rand);
@@ -236,15 +241,81 @@ void SimplePG::startPeek()
 		{
 			qpb->setText("*");
 		}
+		enableClick = true;
 		peek = true;
 	}
 }
 
 void SimplePG::grid_btn_clicked()
 {
-	QPushButton* btn = qobject_cast<QPushButton*>(sender());
-	qDebug() << "pressed " << btn->objectName();
-	btn->setText(charList[buttonList.indexOf(btn)]);
+	//can't click grid buttons till the start button get clicked
+	if (!enableClick)
+		return;
+	if (comboCheck.size() == 2)
+		return;
+	//first click on any button
+	if (comboCheck.size() == 0)
+	{
+		btn1 = qobject_cast<QPushButton*>(sender());
+		btn1->setText(charList[buttonList.indexOf(btn1)]);
+		comboCheck.append(charList[buttonList.indexOf(btn1)]);
+		//prevent clicking an already correct (combo) buttons
+		if (buttonOut.contains(btn1))
+			return;
+		//turning off only one (clicked) button
+		twoDown = false;
+		turnOffTimer = new QTimer(this);
+		connect(turnOffTimer, SIGNAL(timeout()), this, SLOT(turnOff()));
+		turnOffTimer->start(2000);
+		turnOffTimer->setSingleShot(true);
+		return;
+	}
+	//second click on any button just after clicking the first
+	if (comboCheck.size() == 1)
+	{
+		btn2 = qobject_cast<QPushButton*>(sender());
+		btn2->setText(charList[buttonList.indexOf(btn2)]);
+		comboCheck.append(charList[buttonList.indexOf(btn2)]);
+		//prevent clicking the same button twice
+		if (btn1->objectName() == btn2->objectName())
+			return;
+		//if the content of the both buttons are the same
+		if (comboCheck[0] == comboCheck[1])
+		{
+			//correct combo => those buttons aren't clickable anymore
+			buttonOut.append(btn1);
+			buttonOut.append(btn2);
+			//if we don't stop the timer, the buttons will turn off (*)
+			turnOffTimer->stop();
+			//clear combo list
+			comboCheck.clear();
+		}
+		else
+		{
+			turnOffTimer->stop();
+			twoDown = true;
+			turnOffTimer = new QTimer(this);
+			connect(turnOffTimer, SIGNAL(timeout()), this, SLOT(turnOff()));
+			//fast turn off when different chars
+			turnOffTimer->start(500);
+			turnOffTimer->setSingleShot(true);
+		}
+	}
+}
+
+void SimplePG::turnOff()
+{
+	if (!twoDown)
+	{
+		btn1->setText("*");
+		comboCheck.clear();
+	}
+	else
+	{
+		btn1->setText("*");
+		btn2->setText("*");
+		comboCheck.clear();
+	}
 }
 
 bool SimplePG::nativeEvent(const QByteArray& eventType, void* message, long* result)

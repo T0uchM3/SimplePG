@@ -26,15 +26,21 @@ public:
 	QPoint correctionVal;
 	bool pressed;
 	QTimer* opTimer;
+	QTimer* turnOffTimer;
 	bool trigOnce = true;
 	qreal opacityVal = 1.0;
 	int opCounter = 0;
 	QList<QPushButton*> buttonList;
 	QList<QString> randStuff = { "$", "@", "#","%", "+","-" };
+	//charList will get filled with random characters from randStuff
 	QList<QString> charList;
+	//comboCheck will check if the two selected characters matches or not
+	QList<QString> comboCheck;
 	//to avoid having a duplicate set, we put the generated number
 	//in a randList for checking later
 	QList<int> randList;
+	//buttonOut got the buttons that got clicked out
+	QList<QPushButton*> buttonOut;
 	//random number [0..6[
 	int rand;
 	//this become true, when we finish filling the first half
@@ -42,14 +48,18 @@ public:
 	//we bail
 	bool secondRun;
 	QTimer* peekTimer;
+	bool enableClick = false;
 	bool peek = true;
+	QPushButton* btn1;
+	QPushButton* btn2;
+	bool twoDown = false;
 private slots:
 	void grid_btn_clicked();
 	void on_closeButton_clicked();
 	void on_mainBtn_clicked();
 	void transTrig();
 	void startPeek();
-
+	void turnOff();
 private:
 	Ui::SimplePGClass* ui;
 	int x = 0;
