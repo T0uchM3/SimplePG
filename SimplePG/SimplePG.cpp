@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <dwmapi.h>
 #include <wingdi.h>
+#include <QXmlStreamReader>
 
 #define testSpace 0x0010
 long miid = 1010;
@@ -70,6 +71,7 @@ void SimplePG::mouseMoveEvent(QMouseEvent* event)
 	if (pressed)
 	{
 		this->move(mapToParent(event->pos() - current) - correctionVal);
+		dragging = true;
 		if (trigOnce)
 		{
 			//keep calling transTrig
@@ -92,6 +94,7 @@ void SimplePG::transTrig()
 		opTimer->stop();
 	opacityVal = opacityVal - 0.05;
 	this->setWindowOpacity(opacityVal);
+	transTriggered = true;
 }
 bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 {
@@ -106,8 +109,11 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 		pressed = true;
 		return true;
 	}
-	if (watched == ui->topBox && event->type() == QEvent::MouseButtonRelease && qme->button() == Qt::LeftButton)
+	if (watched == ui->topBox && event->type() == QEvent::MouseButtonRelease && qme->button() == Qt::LeftButton && pressed)
 	{
+		//no need to reset/do anything if no drag happened
+		if (!dragging)
+			return false;
 		pressed = false;
 		//reset and halt transition when release
 		this->setWindowOpacity(1);
@@ -115,6 +121,7 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 		opacityVal = 1.0;
 		opCounter = 0;
 		trigOnce = true;
+		dragging = false;
 		return true;
 	}
 	if (watched == ui->topBox && event->type() == QEvent::MouseButtonRelease && qme->button() == Qt::RightButton)
@@ -183,16 +190,38 @@ void SimplePG::on_closeButton_clicked()
 	qDebug("close");
 	SimplePG::close();
 }
-
+//clicking start button
 void SimplePG::on_mainBtn_clicked()
 {
-	qDebug() << "main button clicked";
-	peekTimer = new QTimer(this);
-	connect(peekTimer, SIGNAL(timeout()), this, SLOT(startPeek()));
-	peekTimer->setSingleShot(true);
-	startPeek();
+	if (!cancel)
+	{
+		qDebug() << "main button clicked";
+		//timer for hiding contents after they show up
+		peekTimer = new QTimer(this);
+		connect(peekTimer, SIGNAL(timeout()), this, SLOT(startPeek()));
+		peekTimer->setSingleShot(true);
+		//get a normal call just to show contents
+		startPeek();
+		counter = new QTimer(this);
+		QObject::connect(counter, SIGNAL(timeout()), this, SLOT(UpdateTime()));
+		ui->mainBtn->setDisabled(true);
+		return;
+	}
+	else
+	{
+		finish(false);
+	}
 }
-//first stage after clicking "start"
+void SimplePG::UpdateTime()
+{
+	//if (!counter->isActive()) return;
+	++ctime;
+	QStringList sList = concTime(ctime).split(':');
+	ui->mLab->setText(sList[0]);
+	ui->sLab->setText(sList[1]);
+	ui->msLab->setText(sList[2]);
+}
+//hide and show button's contents
 void SimplePG::startPeek()
 {
 	if (peek)
@@ -201,6 +230,8 @@ void SimplePG::startPeek()
 		secondRun = false;
 		randList.clear();
 		charList.clear();
+		buttonOut.clear();
+
 		for (QPushButton* qpb : buttonList)
 		{
 		again:
@@ -233,8 +264,11 @@ void SimplePG::startPeek()
 			}
 		}
 		peek = false;
+		//second call with timer to hide contents
 		peekTimer->start(2000);
+		return;
 	}
+	//after 2 seconds this get executed
 	else
 	{
 		for (QPushButton* qpb : buttonList)
@@ -243,6 +277,10 @@ void SimplePG::startPeek()
 		}
 		enableClick = true;
 		peek = true;
+		counter->start(10);
+		ui->mainBtn->setText("Cancel");
+		ui->mainBtn->setDisabled(false);
+		cancel = true;
 	}
 }
 
@@ -258,15 +296,15 @@ void SimplePG::grid_btn_clicked()
 	{
 		btn1 = qobject_cast<QPushButton*>(sender());
 		btn1->setText(charList[buttonList.indexOf(btn1)]);
-		comboCheck.append(charList[buttonList.indexOf(btn1)]);
 		//prevent clicking an already correct (combo) buttons
 		if (buttonOut.contains(btn1))
 			return;
+		comboCheck.append(charList[buttonList.indexOf(btn1)]);
 		//turning off only one (clicked) button
 		twoDown = false;
 		turnOffTimer = new QTimer(this);
 		connect(turnOffTimer, SIGNAL(timeout()), this, SLOT(turnOff()));
-		turnOffTimer->start(2000);
+		turnOffTimer->start(1000);
 		turnOffTimer->setSingleShot(true);
 		return;
 	}
@@ -275,6 +313,9 @@ void SimplePG::grid_btn_clicked()
 	{
 		btn2 = qobject_cast<QPushButton*>(sender());
 		btn2->setText(charList[buttonList.indexOf(btn2)]);
+		//prevent clicking an already correct (combo) buttons
+		if (buttonOut.contains(btn2))
+			return;
 		comboCheck.append(charList[buttonList.indexOf(btn2)]);
 		//prevent clicking the same button twice
 		if (btn1->objectName() == btn2->objectName())
@@ -289,6 +330,11 @@ void SimplePG::grid_btn_clicked()
 			turnOffTimer->stop();
 			//clear combo list
 			comboCheck.clear();
+			comboCounter++;
+			if (comboCounter == buttonList.size() / 2)
+			{
+				finish(true);
+			}
 		}
 		else
 		{
@@ -302,7 +348,60 @@ void SimplePG::grid_btn_clicked()
 		}
 	}
 }
-
+//all button's contents are visible
+void SimplePG::finish(bool done)
+{
+	counter->stop();
+	ui->mLab->setText("00");
+	ui->sLab->setText("00");
+	ui->msLab->setText("00");
+	enableClick = false;
+	ui->mainBtn->setText("Start");
+	for (QPushButton* qpb : buttonList)
+	{
+		qpb->setText("*");
+	}
+	cancel = false;
+	if (done)
+	{
+		if (ctime < bestRecord || bestRecord == 0)
+		{
+			bestRecord = ctime;
+		}
+		lastRecord = ctime;
+		dataSaver();
+		ui->bRec->setText(concTime(bestRecord));
+		ui->lRec->setText(concTime(lastRecord));
+	}
+	ctime = 0;
+	comboCounter = 0;
+}
+void SimplePG::dataSaver()
+{
+	QXmlStreamWriter xml;
+	QString filename = "score.xml";
+	QFile* file = new QFile(qApp->applicationDirPath() + "/" + filename);
+	file->open(QFileDevice::ReadWrite);
+	xml.setDevice(file);
+	xml.setAutoFormatting(true);
+	xml.writeStartDocument();
+	xml.writeStartElement("content");
+	xml.writeAttribute("record", "record holder");
+	xml.writeTextElement("best record", QString::number(bestRecord));
+	xml.writeTextElement("last record", QString::number(lastRecord));
+	xml.writeEndElement();
+	xml.writeEndDocument();
+	file->close();
+}
+QString SimplePG::concTime(unsigned xtime)
+{
+	if (xtime == 0)
+		return "00:00:00";
+	const int hr = xtime / 360000, min = xtime % 360000 / 6000, sec = xtime % 6000 / 100, milli = xtime % 100;
+	QString sTime;
+	QTextStream(&sTime) << min / 10 << min % 10 << ":" << sec / 10 << sec % 10 << ":" << milli / 10 << milli % 10;
+	return sTime;
+}
 void SimplePG::turnOff()
 {
 	if (!twoDown)

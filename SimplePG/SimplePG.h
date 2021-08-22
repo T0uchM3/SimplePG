@@ -20,6 +20,9 @@ public:
 	void mousePressEvent(QMouseEvent* event);
 	void mouseMoveEvent(QMouseEvent* event);
 	bool eventFilter(QObject* watched, QEvent* event);
+	void finish(bool done);
+	QString concTime(unsigned xtime);
+	void dataSaver();
 	//randomizing the buttons and then hide
 	QPoint current;
 	//difference between pointer's location and drag's start location.
@@ -53,6 +56,13 @@ public:
 	QPushButton* btn1;
 	QPushButton* btn2;
 	bool twoDown = false;
+	//timer for running the counter
+	QTimer* counter;
+	unsigned ctime = 0, lastRecord = 0, bestRecord = 0;
+	bool transTriggered = false;
+	bool dragging = false;
+	bool cancel = false;
+	int comboCounter = 0;
 private slots:
 	void grid_btn_clicked();
 	void on_closeButton_clicked();
@@ -60,6 +70,7 @@ private slots:
 	void transTrig();
 	void startPeek();
 	void turnOff();
+	void UpdateTime();
 private:
 	Ui::SimplePGClass* ui;
 	int x = 0;
