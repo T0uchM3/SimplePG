@@ -23,6 +23,7 @@ public:
 	void finish(bool done);
 	QString concTime(unsigned xtime);
 	void dataSaver();
+	void loadingScore();
 	//randomizing the buttons and then hide
 	QPoint current;
 	//difference between pointer's location and drag's start location.

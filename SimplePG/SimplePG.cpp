@@ -4,7 +4,7 @@
 #include <dwmapi.h>
 #include <wingdi.h>
 #include <QXmlStreamReader>
-
+#include <QFileDialog>
 #define testSpace 0x0010
 long miid = 1010;
 static QColor m_clear_color = QColor(Qt::white);
@@ -58,6 +58,8 @@ SimplePG::SimplePG(QWidget* parent)
 	::InsertMenuItem(hMenu, 6, true, &mii2);
 
 	correctionVal = QPoint(-7, 0);
+	//loading scores at startup
+	loadingScore();
 	//}
 }
 
@@ -205,11 +207,54 @@ void SimplePG::on_mainBtn_clicked()
 		counter = new QTimer(this);
 		QObject::connect(counter, SIGNAL(timeout()), this, SLOT(UpdateTime()));
 		ui->mainBtn->setDisabled(true);
+		//updateScore();
+
 		return;
 	}
 	else
 	{
 		finish(false);
+	}
+}
+//parsing existing xml file for already stored scores
+void SimplePG::loadingScore()
+{
+	QXmlStreamReader xml;
+
+	QString filename = QCoreApplication::applicationDirPath() + "/score.xml";
+	QFile file(filename);
+	if (!file.open(QFile::ReadOnly | QFile::Text))
+	{
+		qDebug() << "error loading XML";
+		return;
+	}
+	xml.setDevice(&file);
+	while (!xml.atEnd())
+	{
+		xml.readNext();
+		if (xml.isStartElement())
+		{
+			QString name = xml.name().toString();
+			if (name == "score")
+			{
+				continue;
+			}
+
+			if (name == "best")
+			{
+				bestRecord = xml.readElementText().toInt();
+				ui->bRec->setText(concTime(bestRecord));
+			}
+			if (name == "last")
+			{
+				lastRecord = xml.readElementText().toInt();
+				ui->lRec->setText(concTime(lastRecord));
+			}
+		}
+	}
+	if (xml.hasError())
+	{
+		qDebug() << "error loading XML" << xml.errorString() << "line " << xml.lineNumber();
 	}
 }
 void SimplePG::UpdateTime()
@@ -385,10 +430,9 @@ void SimplePG::dataSaver()
 	xml.setDevice(file);
 	xml.setAutoFormatting(true);
 	xml.writeStartDocument();
-	xml.writeStartElement("content");
-	xml.writeAttribute("record", "record holder");
-	xml.writeTextElement("best record", QString::number(bestRecord));
-	xml.writeTextElement("last record", QString::number(lastRecord));
+	xml.writeStartElement("score");
+	xml.writeTextElement("best", QString::number(bestRecord));
+	xml.writeTextElement("last", QString::number(lastRecord));
 	xml.writeEndElement();
 	xml.writeEndDocument();
 	file->close();
