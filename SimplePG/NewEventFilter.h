@@ -8,8 +8,9 @@ class NewEventFilter : public QAbstractNativeEventFilter
 {
 public:
 	NewEventFilter();
-	~NewEventFilter();
-	long* res;
+	~NewEventFilter() override;
+	long *res;
 
-	bool nativeEventFilter(const QByteArray& eventType, void* message, long* result) override;
+	///the quest continue >> .cpp
+	bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
 };

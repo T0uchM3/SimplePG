@@ -15,27 +15,28 @@ class SimplePG : public QMainWindow
 	Q_OBJECT
 
 public:
-	~SimplePG();
-	SimplePG(QWidget* parent = Q_NULLPTR);
-	void mousePressEvent(QMouseEvent* event);
-	void mouseMoveEvent(QMouseEvent* event);
-	bool eventFilter(QObject* watched, QEvent* event);
+	~SimplePG() override;
+	SimplePG(QWidget *parent = Q_NULLPTR);
+	void mousePressEvent(QMouseEvent *event) override;
+	void mouseMoveEvent(QMouseEvent *event) override;
+	bool eventFilter(QObject *watched, QEvent *event) override;
 	void finish(bool done);
 	QString concTime(unsigned xtime);
 	void dataSaver();
 	void loadingScore();
+	void clearScore();
 	//randomizing the buttons and then hide
 	QPoint current;
 	//difference between pointer's location and drag's start location.
 	QPoint correctionVal;
 	bool pressed;
-	QTimer* opTimer;
-	QTimer* turnOffTimer;
+	QTimer *opTimer;
+	QTimer *turnOffTimer;
 	bool trigOnce = true;
 	qreal opacityVal = 1.0;
 	int opCounter = 0;
-	QList<QPushButton*> buttonList;
-	QList<QString> randStuff = { "$", "@", "#","%", "+","-" };
+	QList<QPushButton *> buttonList;
+	QList<QString> randStuff = { "$", "@", "#", "%", "+", "-" };
 	//charList will get filled with random characters from randStuff
 	QList<QString> charList;
 	//comboCheck will check if the two selected characters matches or not
@@ -44,21 +45,21 @@ public:
 	//in a randList for checking later
 	QList<int> randList;
 	//buttonOut got the buttons that got clicked out
-	QList<QPushButton*> buttonOut;
+	QList<QPushButton *> buttonOut;
 	//random number [0..6[
 	int rand;
 	//this become true, when we finish filling the first half
 	//so when the second(last) half finish and find it "true"
 	//we bail
 	bool secondRun;
-	QTimer* peekTimer;
+	QTimer *peekTimer;
 	bool enableClick = false;
 	bool peek = true;
-	QPushButton* btn1;
-	QPushButton* btn2;
+	QPushButton *btn1;
+	QPushButton *btn2;
 	bool twoDown = false;
 	//timer for running the counter
-	QTimer* counter;
+	QTimer *counter;
 	unsigned ctime = 0, lastRecord = 0, bestRecord = 0;
 	bool transTriggered = false;
 	bool dragging = false;
@@ -73,8 +74,10 @@ private slots:
 	void turnOff();
 	void UpdateTime();
 private:
-	Ui::SimplePGClass* ui;
+	Ui::SimplePGClass *ui;
 	int x = 0;
-	bool nativeEvent(const QByteArray& eventType, void* message, long* result);
+	bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
 };
+
+///here it is >> .cpp
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

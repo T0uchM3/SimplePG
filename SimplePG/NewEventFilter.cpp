@@ -9,12 +9,14 @@ NewEventFilter::~NewEventFilter()
 {
 }
 
-bool NewEventFilter::nativeEventFilter(const QByteArray& eventType, void* message, long* result)
+///almost there >>
+bool NewEventFilter::nativeEventFilter(const QByteArray &eventType, void *message, long *result)
 {
-	//QString et = QString(eventType);
-	if (eventType.toStdString() == "windows_generic_MSG") {
-		res = (long*)WndProc(((MSG*)message)->hwnd, ((MSG*)message)->message, ((MSG*)message)->wParam, ((MSG*)message)->lParam);
+	auto et = QString(eventType);
+	if (eventType.toStdString() == "windows_generic_MSG")
+	{
+		///>> SimplePG.h
+		res = (long *)WndProc(static_cast<MSG *>(message)->hwnd, static_cast<MSG *>(message)->message, static_cast<MSG *>(message)->wParam, static_cast<MSG *>(message)->lParam);
 	}
-	//qDebug("nativeFilter");
 	return false;
 }

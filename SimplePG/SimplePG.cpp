@@ -6,10 +6,11 @@
 #include <QXmlStreamReader>
 #include <QFileDialog>
 #define testSpace 0x0010
+//random id for the new added item (clear score)
 long miid = 1010;
 static QColor m_clear_color = QColor(Qt::white);
 
-SimplePG::SimplePG(QWidget* parent)
+SimplePG::SimplePG(QWidget *parent)
 	: QMainWindow(parent), ui(new Ui::SimplePGClass)
 {
 	ui->setupUi(this);
@@ -18,14 +19,14 @@ SimplePG::SimplePG(QWidget* parent)
 
 	QObjectList list = ui->groupBox->children();
 	qDebug() << "Number of children " << list.count();
-	buttonList = ui->groupBox->findChildren<QPushButton*>();
-	for (QObject* v : list)
+	buttonList = ui->groupBox->findChildren<QPushButton *>();
+	for (QObject *v : list)
 	{
-		QPushButton* qpb = qobject_cast<QPushButton*>(v);
+		auto qpb = qobject_cast<QPushButton *>(v);
 		connect(qpb, SIGNAL(clicked()), this, SLOT(grid_btn_clicked()));
 	}
-	LPWSTR test = L"TEST";
-	HMENU hMenu = ::GetSystemMenu((HWND)this->winId(), FALSE);
+	LPWSTR cScore = L"Clear Score";
+	HMENU hMenu = GetSystemMenu((HWND)this->winId(), FALSE);
 	//if (hMenu != NULL)
 	//{
 	//	///put item at the end
@@ -44,17 +45,17 @@ SimplePG::SimplePG(QWidget* parent)
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fType = MF_SEPARATOR;
 	mii.fMask = MIIM_TYPE | MIIM_ID;
-
+	//adding a line separator
 	::InsertMenuItem(hMenu, 5, true, &mii);
 	mii2.cbSize = sizeof(MENUITEMINFO);
 	mii2.fType = MFT_STRING;
 	mii2.fMask = MIIM_ID | MIIM_STRING | MIIM_STATE;
 	//mii2.fState = MFS_HILITE;
 	//mii2.hSubMenu = hMenu;
-	mii2.dwTypeData = test;
+	mii2.dwTypeData = cScore;
 	mii2.wID = miid;
-	mii2.cch = sizeof(test);
-
+	mii2.cch = sizeof(cScore);
+	//adding the button
 	::InsertMenuItem(hMenu, 6, true, &mii2);
 
 	correctionVal = QPoint(-7, 0);
@@ -63,12 +64,12 @@ SimplePG::SimplePG(QWidget* parent)
 	//}
 }
 
-void SimplePG::mousePressEvent(QMouseEvent* event)
+void SimplePG::mousePressEvent(QMouseEvent *event)
 {
 	current = event->pos();
 }
 
-void SimplePG::mouseMoveEvent(QMouseEvent* event)
+void SimplePG::mouseMoveEvent(QMouseEvent *event)
 {
 	if (pressed)
 	{
@@ -86,6 +87,8 @@ void SimplePG::mouseMoveEvent(QMouseEvent* event)
 		}
 	}
 }
+
+//for fading
 void SimplePG::transTrig()
 {
 	//with no interruption this runs 5 times
@@ -98,24 +101,33 @@ void SimplePG::transTrig()
 	this->setWindowOpacity(opacityVal);
 	transTriggered = true;
 }
-bool SimplePG::eventFilter(QObject* watched, QEvent* event)
+
+bool SimplePG::eventFilter(QObject *watched, QEvent *event)
 {
-	QMouseEvent* qme = static_cast<QMouseEvent*>(event);
+	auto qme = static_cast<QMouseEvent *>(event);
 	if (watched == ui->topBox && event->type() == QEvent::MouseButtonPress && qme->button() == Qt::LeftButton)
 	{
-		QMouseEvent* mouseEvent = (QMouseEvent*)event;
+		auto mouseEvent = static_cast<QMouseEvent *>(event);
+		//first run this will be false
 		if (pressed == false)
 		{
+			//capture the mouse pos
 			current = mouseEvent->pos();
 		}
+		//marking pressed as true will make it possible for other events(release, drag) to know that the mouse got pressed
 		pressed = true;
 		return true;
 	}
 	if (watched == ui->topBox && event->type() == QEvent::MouseButtonRelease && qme->button() == Qt::LeftButton && pressed)
 	{
-		//no need to reset/do anything if no drag happened
+		//no need to reset/do anything if no drag happened...
 		if (!dragging)
+		{
+			//bug demo//
+			//remove "pressed = false" -> click(press + release) title bar once-> go to other location in title bar and start dragging
+			pressed = false;
 			return false;
+		}
 		pressed = false;
 		//reset and halt transition when release
 		this->setWindowOpacity(1);
@@ -132,11 +144,11 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 		//get the rect of topbox and check if the mouse pos is inside it
 		if (ui->topBox->rect().contains(qme->localPos().toPoint()))
 		{
-			HMENU hMenu = ::GetSystemMenu((HWND)this->winId(), FALSE);
+			HMENU hMenu = GetSystemMenu((HWND)this->winId(), FALSE);
 
 			if (!hMenu)
 				return false;
-
+			//UTF-16
 			MENUITEMINFOW mii;
 			mii.cbSize = sizeof(MENUITEMINFOW);
 			mii.fMask = MIIM_STATE;
@@ -144,12 +156,16 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 			mii.fType = 0;
 
 			mii.fState = MF_ENABLED;
+			//setting up the context menu
 			SetMenuItemInfoW(hMenu, SC_RESTORE, FALSE, &mii);
 			SetMenuItemInfoW(hMenu, SC_SIZE, FALSE, &mii);
 			SetMenuItemInfoW(hMenu, SC_MOVE, FALSE, &mii);
 			SetMenuItemInfoW(hMenu, SC_MAXIMIZE, FALSE, &mii);
 			SetMenuItemInfoW(hMenu, SC_MINIMIZE, FALSE, &mii);
-
+			//graying these options since they're not needed
+			EnableMenuItem(hMenu, SC_MAXIMIZE, MF_GRAYED);
+			EnableMenuItem(hMenu, SC_MOVE, MF_GRAYED);
+			EnableMenuItem(hMenu, SC_SIZE, MF_GRAYED);
 			mii.fState = MF_GRAYED;
 			//*********attempt to make a dark context menu*****
 			//MENUINFO mi = { 0 };
@@ -164,22 +180,31 @@ bool SimplePG::eventFilter(QObject* watched, QEvent* event)
 			//SetIcon
 			//	WINDOWPLACEMENT wp;
 			//GetWindowPlacement((HWND)this->winId(), &wp);
+
+			///***spawning the context menu (right click)***///
 			//placements relative to the window not the whole screen
 			int x = qme->globalX();
 			int y = qme->globalY();
-			LPARAM cmd = TrackPopupMenu(hMenu, (TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD), x, y, 0, (HWND)this->winId(), nullptr);
+			LPARAM cmd = TrackPopupMenu(hMenu, (TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD), x, y, 0,
+				(HWND)this->winId(), nullptr);
 
 			if (cmd)
-				PostMessageW((HWND)this->winId(), WM_SYSCOMMAND, WPARAM(cmd), 0);
+			{
+				//sending system menu (context menu) messages to the nativeEvent
+				PostMessageW((HWND)this->winId(), WM_SYSCOMMAND, static_cast<WPARAM>(cmd), 0);
+				return true;
+			}
+			return true;
 		}
 	}
 
 	//close window
-	QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+	auto keyEvent = static_cast<QKeyEvent *>(event);
 	if (keyEvent->key() == Qt::Key_Escape)
-		SimplePG::close();
+		close();
 	else
 		return false;
+	return false;
 }
 
 SimplePG::~SimplePG()
@@ -190,8 +215,9 @@ SimplePG::~SimplePG()
 void SimplePG::on_closeButton_clicked()
 {
 	qDebug("close");
-	SimplePG::close();
+	close();
 }
+
 //clicking start button
 void SimplePG::on_mainBtn_clicked()
 {
@@ -205,17 +231,15 @@ void SimplePG::on_mainBtn_clicked()
 		//get a normal call just to show contents
 		startPeek();
 		counter = new QTimer(this);
-		QObject::connect(counter, SIGNAL(timeout()), this, SLOT(UpdateTime()));
+		connect(counter, SIGNAL(timeout()), this, SLOT(UpdateTime()));
 		ui->mainBtn->setDisabled(true);
 		//updateScore();
 
 		return;
 	}
-	else
-	{
-		finish(false);
-	}
+	finish(false);
 }
+
 //parsing existing xml file for already stored scores
 void SimplePG::loadingScore()
 {
@@ -257,6 +281,7 @@ void SimplePG::loadingScore()
 		qDebug() << "error loading XML" << xml.errorString() << "line " << xml.lineNumber();
 	}
 }
+
 void SimplePG::UpdateTime()
 {
 	//if (!counter->isActive()) return;
@@ -266,6 +291,7 @@ void SimplePG::UpdateTime()
 	ui->sLab->setText(sList[1]);
 	ui->msLab->setText(sList[2]);
 }
+
 //hide and show button's contents
 void SimplePG::startPeek()
 {
@@ -277,7 +303,7 @@ void SimplePG::startPeek()
 		charList.clear();
 		buttonOut.clear();
 
-		for (QPushButton* qpb : buttonList)
+		for (QPushButton *qpb : buttonList)
 		{
 		again:
 			if (randList.size() == randStuff.size())
@@ -314,19 +340,16 @@ void SimplePG::startPeek()
 		return;
 	}
 	//after 2 seconds this get executed
-	else
+	for (QPushButton *qpb : buttonList)
 	{
-		for (QPushButton* qpb : buttonList)
-		{
-			qpb->setText("*");
-		}
-		enableClick = true;
-		peek = true;
-		counter->start(10);
-		ui->mainBtn->setText("Cancel");
-		ui->mainBtn->setDisabled(false);
-		cancel = true;
+		qpb->setText("*");
 	}
+	enableClick = true;
+	peek = true;
+	counter->start(10);
+	ui->mainBtn->setText("Cancel");
+	ui->mainBtn->setDisabled(false);
+	cancel = true;
 }
 
 void SimplePG::grid_btn_clicked()
@@ -339,7 +362,7 @@ void SimplePG::grid_btn_clicked()
 	//first click on any button
 	if (comboCheck.size() == 0)
 	{
-		btn1 = qobject_cast<QPushButton*>(sender());
+		btn1 = qobject_cast<QPushButton *>(sender());
 		btn1->setText(charList[buttonList.indexOf(btn1)]);
 		//prevent clicking an already correct (combo) buttons
 		if (buttonOut.contains(btn1))
@@ -356,7 +379,7 @@ void SimplePG::grid_btn_clicked()
 	//second click on any button just after clicking the first
 	if (comboCheck.size() == 1)
 	{
-		btn2 = qobject_cast<QPushButton*>(sender());
+		btn2 = qobject_cast<QPushButton *>(sender());
 		btn2->setText(charList[buttonList.indexOf(btn2)]);
 		//prevent clicking an already correct (combo) buttons
 		if (buttonOut.contains(btn2))
@@ -393,6 +416,7 @@ void SimplePG::grid_btn_clicked()
 		}
 	}
 }
+
 //all button's contents are visible
 void SimplePG::finish(bool done)
 {
@@ -402,7 +426,7 @@ void SimplePG::finish(bool done)
 	ui->msLab->setText("00");
 	enableClick = false;
 	ui->mainBtn->setText("Start");
-	for (QPushButton* qpb : buttonList)
+	for (QPushButton *qpb : buttonList)
 	{
 		qpb->setText("*");
 	}
@@ -421,11 +445,13 @@ void SimplePG::finish(bool done)
 	ctime = 0;
 	comboCounter = 0;
 }
+
 void SimplePG::dataSaver()
 {
 	QXmlStreamWriter xml;
 	QString filename = "score.xml";
-	QFile* file = new QFile(qApp->applicationDirPath() + "/" + filename);
+	//save the score file in the same directory as the .exe
+	auto file = new QFile(qApp->applicationDirPath() + "/" + filename);
 	file->open(QFileDevice::ReadWrite);
 	xml.setDevice(file);
 	xml.setAutoFormatting(true);
@@ -437,6 +463,7 @@ void SimplePG::dataSaver()
 	xml.writeEndDocument();
 	file->close();
 }
+
 QString SimplePG::concTime(unsigned xtime)
 {
 	if (xtime == 0)
@@ -446,6 +473,7 @@ QString SimplePG::concTime(unsigned xtime)
 	QTextStream(&sTime) << min / 10 << min % 10 << ":" << sec / 10 << sec % 10 << ":" << milli / 10 << milli % 10;
 	return sTime;
 }
+
 void SimplePG::turnOff()
 {
 	if (!twoDown)
@@ -461,9 +489,11 @@ void SimplePG::turnOff()
 	}
 }
 
-bool SimplePG::nativeEvent(const QByteArray& eventType, void* message, long* result)
+//for detecting the native events on qwidget
+bool SimplePG::nativeEvent(const QByteArray &eventType, void *message, long *result)
 {
-	MSG* msg = (MSG*)message;
+	auto msg = static_cast<MSG *>(message);
+	//for the native context menu
 	if (msg->message == WM_SYSCOMMAND)
 	{
 		///only works with the first (commented) method
@@ -471,7 +501,7 @@ bool SimplePG::nativeEvent(const QByteArray& eventType, void* message, long* res
 		///can't seems to make the above works with the struct method, always returns 0
 		if ((msg->wParam) == miid)
 		{
-			qDebug("TEST CLICKED");
+			clearScore();
 			return true;
 		}
 	}
@@ -479,10 +509,24 @@ bool SimplePG::nativeEvent(const QByteArray& eventType, void* message, long* res
 	return false;
 }
 
+//clearing the score from the ui and the file
+void SimplePG::clearScore()
+{
+	//resetting the score
+	bestRecord = 0;
+	lastRecord = 0;
+	//triggering update to local file
+	dataSaver();
+	ui->bRec->setText(concTime(bestRecord));
+	ui->lRec->setText(concTime(lastRecord));
+	qDebug("CLEARED");
+}
+
+///working wndProc, just not needed for this project :(
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//qDebug() << "WNDPROCC";
-	PAINTSTRUCT		ps;
+	PAINTSTRUCT ps;
 	if (message == WM_NCPAINT)
 	{
 		HDC hdc = GetWindowDC(hWnd);
