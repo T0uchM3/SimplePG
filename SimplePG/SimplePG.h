@@ -35,8 +35,8 @@ public:
 	bool trigOnce = true;
 	qreal opacityVal = 1.0;
 	int opCounter = 0;
-	QList<QPushButton *> buttonList;
-	QList<QString> randStuff = { "$", "@", "#", "%", "+", "-" };
+	QList<QPushButton*> buttonList;
+	QList<QString> randStuff = {"$", "@", "#", "%", "+", "-"};
 	//charList will get filled with random characters from randStuff
 	QList<QString> charList;
 	//comboCheck will check if the two selected characters matches or not
@@ -45,7 +45,7 @@ public:
 	//in a randList for checking later
 	QList<int> randList;
 	//buttonOut got the buttons that got clicked out
-	QList<QPushButton *> buttonOut;
+	QList<QPushButton*> buttonOut;
 	//random number [0..6[
 	int rand;
 	//this become true, when we finish filling the first half
@@ -76,7 +76,7 @@ private slots:
 private:
 	Ui::SimplePGClass *ui;
 	int x = 0;
-	bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+	bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 };
 
 ///here it is >> .cpp

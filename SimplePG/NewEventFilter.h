@@ -11,6 +11,6 @@ public:
 	~NewEventFilter() override;
 	long *res;
 
-	///the quest continue >> .cpp
-	bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
+	///the quest continues >> .cpp
+	bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override;
 };

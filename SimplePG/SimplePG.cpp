@@ -19,13 +19,13 @@ SimplePG::SimplePG(QWidget *parent)
 
 	QObjectList list = ui->groupBox->children();
 	qDebug() << "Number of children " << list.count();
-	buttonList = ui->groupBox->findChildren<QPushButton *>();
+	buttonList = ui->groupBox->findChildren<QPushButton*>();
 	for (QObject *v : list)
 	{
-		auto qpb = qobject_cast<QPushButton *>(v);
+		auto qpb = qobject_cast<QPushButton*>(v);
 		connect(qpb, SIGNAL(clicked()), this, SLOT(grid_btn_clicked()));
 	}
-	LPWSTR cScore = L"Clear Score";
+	wchar_t cScore[] = L"&Clear Score";
 	HMENU hMenu = GetSystemMenu((HWND)this->winId(), FALSE);
 	//if (hMenu != NULL)
 	//{
@@ -41,7 +41,7 @@ SimplePG::SimplePG(QWidget *parent)
 	///TEST
 	///------
 	///Close
-	MENUITEMINFO mii, mii2 = { 0 };
+	MENUITEMINFO mii, mii2 = {0};
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fType = MF_SEPARATOR;
 	mii.fMask = MIIM_TYPE | MIIM_ID;
@@ -104,10 +104,10 @@ void SimplePG::transTrig()
 
 bool SimplePG::eventFilter(QObject *watched, QEvent *event)
 {
-	auto qme = static_cast<QMouseEvent *>(event);
+	auto qme = static_cast<QMouseEvent*>(event);
 	if (watched == ui->topBox && event->type() == QEvent::MouseButtonPress && qme->button() == Qt::LeftButton)
 	{
-		auto mouseEvent = static_cast<QMouseEvent *>(event);
+		auto mouseEvent = static_cast<QMouseEvent*>(event);
 		//first run this will be false
 		if (pressed == false)
 		{
@@ -176,7 +176,7 @@ bool SimplePG::eventFilter(QObject *watched, QEvent *event)
 			//HMENU hMenu = ::GetMenu(hWnd);
 			//SetMenuInfo(hMenu, &mi);
 			//*******************************
-			ICONINFO ii = { 0 };
+			ICONINFO ii = {0};
 			//SetIcon
 			//	WINDOWPLACEMENT wp;
 			//GetWindowPlacement((HWND)this->winId(), &wp);
@@ -186,7 +186,7 @@ bool SimplePG::eventFilter(QObject *watched, QEvent *event)
 			int x = qme->globalX();
 			int y = qme->globalY();
 			LPARAM cmd = TrackPopupMenu(hMenu, (TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD), x, y, 0,
-				(HWND)this->winId(), nullptr);
+			                            (HWND)this->winId(), nullptr);
 
 			if (cmd)
 			{
@@ -199,7 +199,7 @@ bool SimplePG::eventFilter(QObject *watched, QEvent *event)
 	}
 
 	//close window
-	auto keyEvent = static_cast<QKeyEvent *>(event);
+	auto keyEvent = static_cast<QKeyEvent*>(event);
 	if (keyEvent->key() == Qt::Key_Escape)
 		close();
 	else
@@ -362,7 +362,7 @@ void SimplePG::grid_btn_clicked()
 	//first click on any button
 	if (comboCheck.size() == 0)
 	{
-		btn1 = qobject_cast<QPushButton *>(sender());
+		btn1 = qobject_cast<QPushButton*>(sender());
 		btn1->setText(charList[buttonList.indexOf(btn1)]);
 		//prevent clicking an already correct (combo) buttons
 		if (buttonOut.contains(btn1))
@@ -379,7 +379,7 @@ void SimplePG::grid_btn_clicked()
 	//second click on any button just after clicking the first
 	if (comboCheck.size() == 1)
 	{
-		btn2 = qobject_cast<QPushButton *>(sender());
+		btn2 = qobject_cast<QPushButton*>(sender());
 		btn2->setText(charList[buttonList.indexOf(btn2)]);
 		//prevent clicking an already correct (combo) buttons
 		if (buttonOut.contains(btn2))
@@ -490,9 +490,9 @@ void SimplePG::turnOff()
 }
 
 //for detecting the native events on qwidget
-bool SimplePG::nativeEvent(const QByteArray &eventType, void *message, long *result)
+bool SimplePG::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
 {
-	auto msg = static_cast<MSG *>(message);
+	auto msg = static_cast<MSG*>(message);
 	//for the native context menu
 	if (msg->message == WM_SYSCOMMAND)
 	{
@@ -536,8 +536,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	if (message == WM_ACTIVATE)
 	{
 		qDebug("WM_ACTIVEATE");
-		LPWSTR s = L"hello world!";
-
+		//LPWSTR s = L"hello world!";
+		wchar_t s[] = L"&Clear Score";
 		SetWindowTextW(hWnd, s);
 	}
 	if (message == WM_CREATE)
